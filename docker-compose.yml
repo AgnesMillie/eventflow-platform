@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # O Banco de Dados
+  db:
+    image: mysql:8.0
+    container_name: eventflow_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS} # Vem do arquivo .env
+      MYSQL_DATABASE: eventflow_dev
+    ports:
+      - "3306:3306" # Expõe o MySQL para o seu PC (para DBeaver/TablePlus)
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # O Backend API (NestJS)
+  api:
+    container_name: eventflow_api
+    build:
+      context: ./backend # Constrói usando o /backend/Dockerfile
+    ports:
+      - "3000:3000" # Expõe a API para o seu PC
+    depends_on:
+      - db # Garante que o DB suba antes da API
+    environment:
+      # O NestJS vai ler estas variáveis de ambiente
+      DB_HOST: db        # 'db' é o nome do serviço do MySQL (resolução de DNS do Docker)
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: ${DB_ROOT_PASS}
+      DB_NAME: eventflow_dev
+    volumes:
+      # Espelhamento de Volumes (Hot-Reload):
+      # Qualquer mudança que você fizer no /backend no VS Code...
+      - ./backend:/app
+      # ...será refletida DENTRO do container, exceto node_modules.
+      - /app/node_modules
+
+  # O Frontend (React)
+  web:
+    container_name: eventflow_web
+    build:
+      context: ./frontend # Constrói usando o /frontend/Dockerfile
+    ports:
+      - "5173:5173" # Expõe o Vite para o seu PC
+    depends_on:
+      - api # O frontend (tecnicamente) não depende da API para *subir*, mas é uma boa prática.
+    volumes:
+      # Hot-Reload para o React:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  mysql_data: # Este volume persiste seus dados do MySQL mesmo se você derrubar os containers.
