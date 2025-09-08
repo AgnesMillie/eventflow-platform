@@ -1,0 +1,9 @@
+# Ignora arquivos de dependência locais (crucial!)
+**/node_modules
+**/dist
+**/build
+
+# Arquivos do S.O. e IDE
+.DS_Store
+.vscode/
+npm-debug.log
