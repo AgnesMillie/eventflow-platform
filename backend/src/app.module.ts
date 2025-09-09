@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module'; // 1. IMPORTAMOS O NOVO MÓDULO
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -34,7 +35,9 @@ import { UsersModule } from './users/users.module'; // 1. IMPORTAMOS O NOVO MÓD
       }),
     }),
 
-    UsersModule, // 2. REGISTRAMOS O UsersModule AQUI
+    UsersModule,
+
+    AuthModule, // 2. REGISTRAMOS O UsersModule AQUI
   ],
   controllers: [AppController],
   providers: [AppService],

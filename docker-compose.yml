@@ -35,7 +35,7 @@ services:
       # Qualquer mudança que você fizer no /backend no VS Code...
       - ./backend:/app
       # ...será refletida DENTRO do container, exceto node_modules.
-      - /app/node_modules
+      
 
   # O Frontend (React)
   web:
