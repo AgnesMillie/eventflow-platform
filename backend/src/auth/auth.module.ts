@@ -4,18 +4,18 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PassportModule } from '@nestjs/passport'; // <--- CORREÇÃO 1: IMPORTAÇÃO ADICIONADA
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './strategies/jwt.strategy'; // A estratégia que criamos
 
 @Module({
   imports: [
     UsersModule,
     ConfigModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }), // Agora isso é reconhecido
+    PassportModule.register({ defaultStrategy: 'jwt' }),
 
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      // CORREÇÃO 2: Removemos o 'async' desnecessário
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: { expiresIn: '1h' },
@@ -23,6 +23,9 @@ import { PassportModule } from '@nestjs/passport'; // <--- CORREÇÃO 1: IMPORTA
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    JwtStrategy, // A estratégia é registrada aqui como um "provedor"
+  ],
 })
 export class AuthModule {}
