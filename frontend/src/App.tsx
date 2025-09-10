@@ -1,14 +1,22 @@
+import { useState } from 'react';
 import { RegisterForm } from './components/RegisterForm';
+import { LoginForm } from './components/LoginForm';
+import { AuthFormToggle } from './components/AuthFormToggle';
 
 function App() {
+  // Estado para controlar se estamos a ver o formulário de login ou registo
+  const [isLoginView, setIsLoginView] = useState(true);
+
+  const handleLoginSuccess = (token: string) => {
+    // Por agora, vamos apenas mostrar um alerta e o token na consola.
+    // Na próxima fase, guardaremos o token e redirecionaremos o utilizador.
+    alert('Login bem-sucedido!');
+    console.log('Token de Acesso:', token);
+  };
+
   return (
-    // O container principal define o fundo e a altura mínima do ecrã
-    <main className="bg-gradient-to-br from-slate-900 to-gray-900 min-h-screen w-full text-white">
-      
-      {/* O layout de duas colunas agora preenche o 'main' diretamente */}
+    <main className="bg-gradient-to-br from-slate-900 to-gray-900 min-h-screen w-full flex items-center justify-center text-white lg:p-0 p-4">
       <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-2">
-        
-        {/* Coluna Esquerda: Branding & Informação */}
         <div className="p-10 md:p-12 lg:p-20 bg-slate-800/30 backdrop-blur-sm hidden md:flex flex-col justify-center">
           <div className="mb-6">
             <div className="bg-gradient-to-r from-sky-500 to-cyan-400 w-16 h-16 flex items-center justify-center rounded-2xl">
@@ -19,10 +27,20 @@ function App() {
           <p className="text-slate-300 text-lg lg:text-xl">A sua plataforma completa para criar, gerir e descobrir eventos incríveis.</p>
         </div>
 
-        {/* Coluna Direita: Formulário */}
         <div className="p-8 md:p-12 lg:p-20 bg-slate-800/50 backdrop-blur-sm flex flex-col justify-center">
           <div className="w-full max-w-md mx-auto">
-            <RegisterForm />
+            {/* Renderização condicional: mostra o Login ou o Registo */}
+            {isLoginView ? (
+              <LoginForm onLoginSuccess={handleLoginSuccess} />
+            ) : (
+              <RegisterForm />
+            )}
+            
+            {/* Componente para alternar entre as visualizações */}
+            <AuthFormToggle 
+              isLoginView={isLoginView}
+              toggleView={() => setIsLoginView(!isLoginView)}
+            />
           </div>
         </div>
       </div>
@@ -31,4 +49,3 @@ function App() {
 }
 
 export default App;
-
