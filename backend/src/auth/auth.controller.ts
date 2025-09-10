@@ -1,7 +1,18 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get, // 1. Importe o Get
+  UseGuards, // 2. Importe o UseGuards
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto'; // 1. Importe o LoginDto
+import { LoginDto } from './dto/login.dto';
+import { AuthGuard } from '@nestjs/passport'; // 3. Importe a Guarda
+import { GetUser } from './decorators/get-user.decorator'; // 4. Importe nosso decorator
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -9,15 +20,21 @@ export class AuthController {
 
   @Post('register')
   register(@Body() registerDto: RegisterDto) {
-    // (O endpoint de registro que já fizemos)
     return this.authService.register(registerDto);
   }
 
-  // --- 2. NOSSO NOVO ENDPOINT DE LOGIN ---
-  @HttpCode(HttpStatus.OK) // Por padrão, POST retorna 201. Dizemos para retornar 200 (OK) no login.
+  @HttpCode(HttpStatus.OK)
   @Post('login')
   login(@Body() loginDto: LoginDto) {
-    // Validação automática pelo ValidationPipe (graças ao main.ts)
     return this.authService.login(loginDto);
+  }
+
+  // ---- 5. NOSSO NOVO ENDPOINT PROTEGIDO ----
+  @Get('profile')
+  @UseGuards(AuthGuard('jwt')) // APLICA A GUARDA: 'jwt' é o nome padrão da nossa JwtStrategy
+  getProfile(@GetUser() user: User) {
+    // Graças ao nosso decorator @GetUser(), a variável 'user' já contém
+    // os dados do usuário que foram validados e retornados pela JwtStrategy.
+    return user;
   }
 }
