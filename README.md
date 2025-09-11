@@ -1,35 +1,64 @@
-# [![CI Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+# EventFlow: A Full Stack Event Management Platform
 
-EventFlow is a robust, full-stack event management platform designed to demonstrate modern software architecture principles. It provides a complete solution for organizers to create events and for users to browse and book tickets, built on a scalable, containerized stack.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com)
 
-## 🚀 Core Features
+## 🚀 About The Project
 
-* **Authentication:** Secure JWT (JSON Web Token) authentication for user registration and login.
-* **Role-Based Access Control (RBAC):** Distinct permissions for Users (browsing/booking) and Organizers (event creation/management).
-* **Event Management:** Full CRUD operations for event creation, scheduling, and descriptions.
-* **Transactional Bookings:** ACID-compliant booking system (powered by MySQL) to ensure data integrity and prevent double-booking.
-* **Containerized Environment:** Fully orchestrated development environment using Docker Compose.
+**EventFlow** is a comprehensive full-stack web platform designed to showcase a modern, robust, and scalable software architecture. It serves as a signature project that demonstrates proficiency in backend design, reactive frontend development, and containerized infrastructure orchestration. The platform allows organizers to create and manage events, and for standard users to view them.
 
----
+## ✨ Key Features
+
+* **Secure JWT Authentication:** Complete registration and login flow with expiring JSON Web Tokens.
+* **Role-Based Access Control (RBAC):**
+    * **User (`USER`):** Standard role, can view events.
+    * **Organizer (`ORGANIZER`):** Privileged role, can create, edit, and delete events.
+* **Event Management (CRUD):** Full Create, Read, Update, and Delete operations for events.
+* **Protected Endpoints:** Event management routes are protected by guards that verify both authentication (JWT) and authorization (`ORGANIZER` role).
+* **Reactive Frontend:** A dynamic user interface built with **React** and **TypeScript**, which adapts based on the logged-in user's role.
+* **Containerized Environment:** The entire stack (Backend, Frontend, Database) is orchestrated with **Docker Compose**, ensuring a consistent and easy-to-set-up development environment with a single command.
+
+## 📸 Visual Showcase
+
+**1. Authentication Pages**
+*A responsive, two-column layout presents the brand and provides clear forms for new user registration and existing user login.*
+
+*Login Screen:*
+![Login Screen](./docs/images/login.png)
+
+*Register Screen:*
+![Register Screen](./docs/images/registro.png)
+
+**2. Standard User Dashboard**
+*A standard `USER` sees the list of events but does not have access to administrative controls, ensuring data security.*
+![Standard User Dashboard](./docs/images/usuario.png)
+
+**3. Organizer Dashboard**
+*An `ORGANIZER` has full access, with buttons to create, edit, and delete events, demonstrating role-based access control (RBAC).*
+![Organizer Dashboard](./docs/images/organizador.png)
+
+**4. Create Event Modal**
+*An elegant modal allows organizers to add new events without leaving the main page, improving the user experience.*
+![Create Event Modal](./docs/images/evento.png)
 
 ## 🏗️ Tech Stack & Architecture
 
-This project is a **Monorepo** managed with Docker. The system is architected with a decoupled frontend and a modular backend API.
+This project is built as a **Monorepo**, containing the backend and frontend applications in a single repository for streamlined management.
 
 | Area | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Backend** | **NestJS (Node.js/TypeScript)** | Modular API design, Dependency Injection, JWT Auth |
-| **Frontend** | **React (TypeScript)** | Dynamic user dashboards and event browsing (built with Vite) |
-| **Database** | **MySQL 8.0** | Relational data persistence and transactional integrity |
-| **Infrastructure**| **Docker / Docker Compose** | Containerization and orchestration of all services (DB, API, Web) |
+| **Backend** | **NestJS (Node.js/TS)** | Modular API, Dependency Injection, JWT & RBAC Auth |
+| **Frontend** | **React (TypeScript/Vite)** | Reactive UI, state management, and API communication |
+| **Database** | **MySQL 8.0** | Relational data persistence |
+| **Infrastructure**| **Docker / Docker Compose** | Containerization and orchestration of all services |
 
-### System Architecture Diagram
-![Architecture Diagram](https://your-link-to-diagram.com/architecture.png) 
----
+### Architecture Diagram
+
+![Architecture Diagram](https://placehold.co/800x300/0f172a/94a3b8?text=Replace+with+Simple+Architecture+Diagram)
 
 ## 🚦 Getting Started: Running Locally
 
-This entire project is designed to run with one command using Docker.
+This project is designed to run with a single command, thanks to Docker.
 
 ### Prerequisites
 
@@ -40,16 +69,15 @@ This entire project is designed to run with one command using Docker.
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/](https://github.com/)[YOUR_USERNAME]/[YOUR_REPO].git
-    cd [YOUR_REPO]
+    git clone [https://github.com/](https://github.com/)[YOUR_USERNAME]/eventflow-platform.git
+    cd eventflow-platform
     ```
 
 2.  **Create your environment file:**
-    Duplicate the `.env.example` file (you must create this file) and rename it `.env`. Populate it with the necessary variables (like database passwords).
+    Duplicate the `.env.example` file and rename it to `.env`. Fill in the necessary variables (like `DB_ROOT_PASS` and `JWT_SECRET`).
 
-3.  **Build and Run with Docker Compose:**
-    This single command will build the images for the API and the Web client, start the MySQL database, and run the entire stack.
-
+3.  **Build and run with Docker Compose:**
+    This single command will build the images, start the containers, and connect the entire stack.
     ```bash
     docker-compose up --build
     ```
@@ -57,18 +85,17 @@ This entire project is designed to run with one command using Docker.
 4.  **Access the application:**
     * **Frontend (React):** `http://localhost:5173`
     * **Backend (NestJS API):** `http://localhost:3000`
-    * **Database (MySQL):** Accessible on port `3306` (for tools like DBeaver/TablePlus)
-
----
 
 ## 📚 API Documentation
 
-For detailed API endpoint descriptions, request/response models, and testing, please refer to the Postman Collection located in the `/docs` folder or via the live API specification.
+For a detailed description of the endpoints, request/response models, and testing, please refer to a Postman / Thunder Client collection or the Swagger documentation generated by NestJS (if implemented).
 
-* **Live Swagger Docs:** `http://localhost:3000/api`
-
----
+* **Register Endpoint:** `POST /auth/register`
+* **Login Endpoint:** `POST /auth/login`
+* **Profile Endpoint:** `GET /auth/profile` (JWT Protected)
+* **Events Endpoints:** `GET`, `POST`, `PATCH`, `DELETE` at `/events` (Write routes protected by `ORGANIZER` role).
 
 ## 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+```eof
