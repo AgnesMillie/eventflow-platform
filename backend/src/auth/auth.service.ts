@@ -38,7 +38,8 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email);
 
-    if (!user || !user.password_hash) {
+    // CORREÇÃO: Trocámos a verificação dupla por 'optional chaining'
+    if (!user?.password_hash) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -51,7 +52,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // ALTERAÇÃO PRINCIPAL: Adicionamos o 'role' do utilizador ao payload do token.
     const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
