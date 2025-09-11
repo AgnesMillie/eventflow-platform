@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRole } from '../enums/user-role.enum'; // 1. Importar o Enum
+import { UserRole } from '../enums/user-role.enum';
 
 @Entity({ name: 'users' })
 export class User {
@@ -18,11 +18,10 @@ export class User {
   @Column()
   password_hash: string;
 
-  // 2. Adicionar a nova coluna de papel
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.USER, // Por defeito, todo o novo utilizador é um 'USER'
+    default: UserRole.USER,
   })
   role: UserRole;
 

@@ -3,22 +3,29 @@ import axios from 'axios';
 import type { Event } from '../types/event';
 import { EventCard } from '../components/EventCard';
 import { CreateEventModal } from '../components/CreateEventModal';
-import { EditEventModal } from '../components/EditEventModal'; // 1. Importar o novo modal de edição
+import { EditEventModal } from '../components/EditEventModal';
 
 const API_URL = 'http://localhost:3000';
 const TOKEN_KEY = 'eventflow-auth-token';
 
+// O tipo para o utilizador que recebemos do nosso hook 'useAuth'
+interface User {
+  email: string;
+  role: 'user' | 'organizer';
+}
+
 interface DashboardProps {
+  readonly user: User; // CORREÇÃO: A prop 'user' é agora obrigatória e não pode ser nula.
   readonly onLogout: () => void;
 }
 
-export function Dashboard({ onLogout }: DashboardProps) {
+export function Dashboard({ user, onLogout }: DashboardProps) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null); // 2. Estado para guardar o evento a ser editado
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   const fetchEvents = useCallback(async () => {
     try {
@@ -38,9 +45,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
     void fetchEvents();
   }, [fetchEvents]);
 
-  // 3. Função para apagar um evento
   const handleDeleteEvent = async (eventId: string) => {
-    // Usamos window.confirm para uma confirmação simples e rápida
     if (!window.confirm('Tem a certeza que deseja apagar este evento? Esta ação é irreversível.')) {
       return;
     }
@@ -50,7 +55,6 @@ export function Dashboard({ onLogout }: DashboardProps) {
       await axios.delete(`${API_URL}/events/${eventId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Após apagar, atualizamos a lista de eventos
       await fetchEvents();
     } catch (err) {
       console.error('Falha ao apagar o evento:', err);
@@ -58,6 +62,8 @@ export function Dashboard({ onLogout }: DashboardProps) {
     }
   };
   
+  // A "guarda de segurança" foi removida porque o App.tsx já garante que 'user' existe.
+
   return (
     <>
       <div className="w-full min-h-screen p-8">
@@ -66,15 +72,17 @@ export function Dashboard({ onLogout }: DashboardProps) {
             <span className="text-sky-400">Event</span>Flow Dashboard
           </h1>
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="bg-gradient-to-r from-sky-500 to-cyan-400 hover:from-sky-600 hover:to-cyan-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
-            >
-              Criar Novo Evento
-            </button>
+            {user.role === 'organizer' && (
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="bg-gradient-to-r from-sky-500 to-cyan-400 hover:from-sky-600 hover:to-cyan-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition-all"
+              >
+                Criar Novo Evento
+              </button>
+            )}
             <button
               onClick={onLogout}
-              className="bg-slate-700 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+              className="bg-slate-700 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg"
             >
               Logout
             </button>
@@ -86,42 +94,31 @@ export function Dashboard({ onLogout }: DashboardProps) {
           {error && <p className="text-center text-red-400">{error}</p>}
           
           {!isLoading && !error && (
-            <>
-              {events.length === 0 ? (
-                <div className="text-center bg-slate-800/50 p-10 rounded-xl">
-                  <h2 className="text-2xl font-semibold mb-2">Nenhum evento encontrado</h2>
-                  <p className="text-slate-400">Clique em "Criar Novo Evento" para começar.</p>
-                </div>
-              ) : (
-                // 4. Passar as novas funções para cada EventCard
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {events.map((event) => (
-                    <EventCard 
-                      key={event.id} 
-                      event={event} 
-                      onEdit={() => setEditingEvent(event)} 
-                      onDelete={handleDeleteEvent}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
+             events.length === 0 ? (
+              <div className="text-center bg-slate-800/50 p-10 rounded-xl">
+                <h2 className="text-2xl font-semibold mb-2">Nenhum evento encontrado</h2>
+                <p className="text-slate-400">{user.role === 'organizer' ? 'Clique em "Criar Novo Evento" para começar.' : 'De momento não existem eventos disponíveis.'}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {events.map((event) => (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    userRole={user.role}
+                    onEdit={() => setEditingEvent(event)} 
+                    onDelete={handleDeleteEvent}
+                  />
+                ))}
+              </div>
+            )
           )}
         </main>
       </div>
 
-      {/* 5. Renderizar os dois modais */}
-      <CreateEventModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onEventCreated={fetchEvents}
-      />
-      
-      <EditEventModal
-        eventToEdit={editingEvent}
-        onClose={() => setEditingEvent(null)}
-        onEventUpdated={fetchEvents}
-      />
+      <CreateEventModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onEventCreated={fetchEvents} />
+      <EditEventModal eventToEdit={editingEvent} onClose={() => setEditingEvent(null)} onEventUpdated={fetchEvents} />
     </>
   );
 }
+
