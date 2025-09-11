@@ -2,6 +2,8 @@ import type { Event } from '../types/event';
 
 interface EventCardProps {
   readonly event: Event;
+  readonly onEdit: (event: Event) => void; // Função para ser chamada quando o botão Editar é clicado
+  readonly onDelete: (eventId: string) => void; // Função para o botão Apagar
 }
 
 // Função para formatar a data para um formato mais legível
@@ -15,10 +17,10 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, onEdit, onDelete }: EventCardProps) {
   return (
-    <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-sky-500/20">
-      <div className="p-6">
+    <div className="flex flex-col bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-sky-500/20">
+      <div className="p-6 flex-grow">
         <h3 className="text-2xl font-bold text-sky-400 mb-2">{event.name}</h3>
         <p className="text-slate-300 mb-4 h-24 overflow-hidden text-ellipsis">{event.description}</p>
         
@@ -33,7 +35,22 @@ export function EventCard({ event }: EventCardProps) {
           </div>
         </div>
       </div>
+
+      {/* SECÇÃO DOS BOTÕES DE AÇÃO */}
+      <div className="bg-slate-900/50 p-4 border-t border-slate-700 flex justify-end gap-3">
+        <button 
+          onClick={() => onEdit(event)}
+          className="text-sm font-semibold text-yellow-400 hover:text-yellow-300 transition-colors"
+        >
+          Editar
+        </button>
+        <button 
+          onClick={() => onDelete(event.id)}
+          className="text-sm font-semibold text-red-500 hover:text-red-400 transition-colors"
+        >
+          Apagar
+        </button>
+      </div>
     </div>
   );
 }
-
