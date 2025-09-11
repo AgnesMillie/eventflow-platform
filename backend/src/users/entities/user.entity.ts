@@ -5,21 +5,30 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserRole } from '../enums/user-role.enum'; // 1. Importar o Enum
 
-@Entity({ name: 'users' }) // Isso diz ao TypeORM para criar uma tabela chamada 'users'
+@Entity({ name: 'users' })
 export class User {
-  @PrimaryGeneratedColumn('uuid') // Chave primária automática (UUID é melhor que números)
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true }) // O email deve ser único
+  @Column({ unique: true })
   email: string;
 
   @Column()
-  password_hash: string; // NUNCA guardamos a senha pura, apenas o "hash" dela
+  password_hash: string;
 
-  @CreateDateColumn() // Coluna automática de data de criação
+  // 2. Adicionar a nova coluna de papel
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER, // Por defeito, todo o novo utilizador é um 'USER'
+  })
+  role: UserRole;
+
+  @CreateDateColumn()
   created_at: Date;
 
-  @UpdateDateColumn() // Coluna automática de data de atualização
+  @UpdateDateColumn()
   updated_at: Date;
 }
