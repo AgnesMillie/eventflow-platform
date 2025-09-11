@@ -20,25 +20,25 @@
 
 ## 📸 Visual Showcase
 
-**1. Authentication Pages**
+**1. Authentication Pages**  
 *A responsive, two-column layout presents the brand and provides clear forms for new user registration and existing user login.*
 
-*Login Screen:*
+*Login Screen:*  
 ![Login Screen](./docs/images/login.png)
 
-*Register Screen:*
+*Register Screen:*  
 ![Register Screen](./docs/images/registro.png)
 
-**2. Standard User Dashboard**
-*A standard `USER` sees the list of events but does not have access to administrative controls, ensuring data security.*
+**2. Standard User Dashboard**  
+*A standard `USER` sees the list of events but does not have access to administrative controls, ensuring data security.*  
 ![Standard User Dashboard](./docs/images/usuario.png)
 
-**3. Organizer Dashboard**
-*An `ORGANIZER` has full access, with buttons to create, edit, and delete events, demonstrating role-based access control (RBAC).*
+**3. Organizer Dashboard**  
+*An `ORGANIZER` has full access, with buttons to create, edit, and delete events, demonstrating role-based access control (RBAC).*  
 ![Organizer Dashboard](./docs/images/organizador.png)
 
-**4. Create Event Modal**
-*An elegant modal allows organizers to add new events without leaving the main page, improving the user experience.*
+**4. Create Event Modal**  
+*An elegant modal allows organizers to add new events without leaving the main page, improving the user experience.*  
 ![Create Event Modal](./docs/images/evento.png)
 
 ## 🏗️ Tech Stack & Architecture
@@ -54,7 +54,23 @@ This project is built as a **Monorepo**, containing the backend and frontend app
 
 ### Architecture Diagram
 
-![Architecture Diagram](https://placehold.co/800x300/0f172a/94a3b8?text=Replace+with+Simple+Architecture+Diagram)
+*This diagram illustrates the flow of interaction between the services, all orchestrated by Docker Compose.*
+
+```mermaid
+graph TD
+subgraph "Docker Compose Environment"
+A["React Frontend
+(Container :5173)"] --> B["NestJS Backend API
+(Container :3000)"];
+B --> C["MySQL Database
+(Container :3306)"];
+end
+D[User] --> A;
+style A fill:#61DAFB,stroke:#333,stroke-width:2px
+style B fill:#E0234E,stroke:#333,stroke-width:2px
+style C fill:#4479A1,stroke:#333,stroke-width:2px
+style D fill:#94a3b8,stroke:#333,stroke-width:2px
+```
 
 ## 🚦 Getting Started: Running Locally
 
@@ -98,4 +114,3 @@ For a detailed description of the endpoints, request/response models, and testin
 ## 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```eof
