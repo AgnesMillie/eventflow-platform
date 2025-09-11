@@ -1,11 +1,7 @@
-/* Importações base do Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* A CORREÇÃO: Força os elementos raiz a ocupar 100% da altura e largura do ecrã.
-  Isto garante que a classe 'min-h-screen' do Tailwind no App.tsx funcione corretamente.
-*/
 html,
 body,
 #root {
