@@ -1,17 +1,16 @@
 import {
   Injectable,
   ConflictException,
-  UnauthorizedException, // Precisamos deste novo erro
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto'; // 1. Importe o LoginDto
-import { JwtService } from '@nestjs/jwt'; // 2. Importe o JwtService
+import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  // 3. Injete ambos os serviços (UsersService e JwtService)
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -36,31 +35,25 @@ export class AuthService {
     return result;
   }
 
-  // ---- 4. NOSSO NOVO MÉTODO DE LOGIN ----
   async login(loginDto: LoginDto) {
-    // 1. Encontre o usuário
     const user = await this.usersService.findByEmail(loginDto.email);
 
-    // 2. Se não achar, ou se o usuário não tiver hash (nunca deve acontecer), lance Erro 401
     if (!user || !user.password_hash) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // 3. Compare a senha do DTO com o hash do banco de dados
     const isPasswordMatching = await bcrypt.compare(
       loginDto.password,
       user.password_hash,
     );
 
-    // 4. Se as senhas não baterem, lance Erro 401
     if (!isPasswordMatching) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // 5. SUCESSO. Crie o "payload" (carga útil) do JWT
-    const payload = { sub: user.id, email: user.email }; // 'sub' (subject) é o ID do usuário (padrão do JWT)
+    // ALTERAÇÃO PRINCIPAL: Adicionamos o 'role' do utilizador ao payload do token.
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
-    // 6. Assine o token e retorne-o
     return {
       access_token: this.jwtService.sign(payload),
     };

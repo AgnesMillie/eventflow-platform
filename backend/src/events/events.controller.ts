@@ -6,40 +6,44 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards, // Precisamos disso para proteger rotas
-  ParseUUIDPipe, // Para validar que o ID é um UUID
+  UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { AuthGuard } from '@nestjs/passport'; // Nossa guarda de segurança JWT
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/guards/roles.guard'; // 1. Importar a nova guarda
+import { Roles } from 'src/auth/decorators/roles.decorator'; // 2. Importar o novo decorator
+import { UserRole } from 'src/users/enums/user-role.enum'; // 3. Importar os papéis
 
-@Controller('events') // Todas as rotas aqui começam com /events
+@Controller('events')
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
-  // --- Rota Protegida ---
+  // --- Rota Protegida por Papel ---
   @Post()
-  @UseGuards(AuthGuard('jwt')) // APLICA A GUARDA: Só usuários com token válido podem passar
+  @UseGuards(AuthGuard('jwt'), RolesGuard) // 4. Usar AMBAS as guardas (primeiro JWT, depois Papéis)
+  @Roles(UserRole.ORGANIZER) // 5. Especificar que SÓ um ORGANIZER pode aceder
   create(@Body() createEventDto: CreateEventDto) {
     return this.eventsService.create(createEventDto);
   }
 
-  // --- Rota Pública ---
+  // --- Rotas Públicas ---
   @Get()
   findAll() {
     return this.eventsService.findAll();
   }
 
-  // --- Rota Pública ---
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.eventsService.findOne(id);
   }
 
-  // --- Rota Protegida ---
+  // --- Rota Protegida por Papel ---
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt')) // APLICA A GUARDA
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ORGANIZER)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateEventDto: UpdateEventDto,
@@ -47,9 +51,10 @@ export class EventsController {
     return this.eventsService.update(id, updateEventDto);
   }
 
-  // --- Rota Protegida ---
+  // --- Rota Protegida por Papel ---
   @Delete(':id')
-  @UseGuards(AuthGuard('jwt')) // APLICA A GUARDA
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ORGANIZER)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.eventsService.remove(id);
   }
